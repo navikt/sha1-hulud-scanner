@@ -101,7 +101,7 @@ handle_vulnerabilities() {
     if [ "$has_bun_files" = false ] && [ "$has_truffler_dirs" = false ]; then
         print_success "No vulnerable files or directories found on this system."
         
-        local marker_file="$HOME/sha1-hulud-null-find.txt"
+        local marker_file="$HOME/.sha1-hulud-null-find-v02.txt"
         echo "SHA-1 Hulud Scan - No vulnerabilities found" > "$marker_file"
         echo "Scan Date: $(date)" >> "$marker_file"
         echo "Hostname: $(hostname)" >> "$marker_file"
@@ -122,7 +122,7 @@ handle_vulnerabilities() {
             echo "  - $file" | tee -a "$LOG_FILE"
         done
         
-        local marker_file="$HOME/sha1-hulud-bun-find.txt"
+        local marker_file="$HOME/.sha1-hulud-bun-find-v02.txt"
         {
             echo "SHA-1 Hulud Scan - BUN VULNERABILITIES DETECTED"
             echo "Scan Date: $(date)"
@@ -147,7 +147,7 @@ handle_vulnerabilities() {
             echo "  - $dir" | tee -a "$LOG_FILE"
         done
         
-        local marker_file="$HOME/sha1-hulud-truffler-find.txt"
+        local marker_file="$HOME/.sha1-hulud-truffler-find-v02.txt"
         {
             echo "SHA-1 Hulud Scan - TRUFFLER VULNERABILITIES DETECTED"
             echo "Scan Date: $(date)"

@@ -1,6 +1,6 @@
 {
   "name": "sha1-hulud-scan-script",
-  "version": "1.0.0",
+  "version": "0.2",
   "description": "Provisorisk script for å scanne utviklerklienter for Sha1-hulud sårbarheter",
   "main": "index.js",
   "bin": {
