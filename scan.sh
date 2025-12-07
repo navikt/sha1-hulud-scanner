@@ -48,35 +48,42 @@ scan_filesystem() {
     print_info "Results will be saved to: $LOG_FILE"
     echo ""
     
+    local find_args=()
+    find_args+=("$search_paths")
+    find_args+=("(")
+    
+    local first_file=true
     for target_file in "${TARGET_FILES[@]}"; do
-        print_info "Scanning for: $target_file"
-        echo "" | tee -a "$LOG_FILE"
-        
-        while IFS= read -r file; do
-            if [ -n "$file" ]; then
-                print_success "Found: $file"
-                FOUND_FILES+=("$file")
-                FOUND_COUNT=$((FOUND_COUNT + 1))
-            fi
-        done < <(find $search_paths -type f -name "$target_file" 2>/dev/null || true)
-        
-        echo "" | tee -a "$LOG_FILE"
+        if [ "$first_file" = false ]; then
+            find_args+=("-o")
+        fi
+        find_args+=("(" "-type" "f" "-name" "$target_file" ")")
+        first_file=false
     done
     
     for target_dir in "${TARGET_DIRS[@]}"; do
-        print_info "Scanning for directory: $target_dir"
-        echo "" | tee -a "$LOG_FILE"
-        
-        while IFS= read -r dir; do
-            if [ -n "$dir" ]; then
-                print_success "Found: $dir"
-                FOUND_DIRS+=("$dir")
+        find_args+=("-o")
+        find_args+=("(" "-type" "d" "-name" "$target_dir" ")")
+    done
+    
+    find_args+=(")")
+    
+    print_info "Scanning filesystem..."
+    echo "" | tee -a "$LOG_FILE"
+    
+    while IFS= read -r item; do
+        if [ -n "$item" ]; then
+            if [ -f "$item" ]; then
+                print_success "Found file: $item"
+                FOUND_FILES+=("$item")
+                FOUND_COUNT=$((FOUND_COUNT + 1))
+            elif [ -d "$item" ]; then
+                print_success "Found directory: $item"
+                FOUND_DIRS+=("$item")
                 FOUND_DIRS_COUNT=$((FOUND_DIRS_COUNT + 1))
             fi
-        done < <(find $search_paths -type d -name "$target_dir" 2>/dev/null || true)
-        
-        echo "" | tee -a "$LOG_FILE"
-    done
+        fi
+    done < <(find "${find_args[@]}" 2>/dev/null || true)
     
     echo ""
     print_info "Scan complete!"
@@ -101,7 +108,7 @@ handle_vulnerabilities() {
     if [ "$has_bun_files" = false ] && [ "$has_truffler_dirs" = false ]; then
         print_success "No vulnerable files or directories found on this system."
         
-        local marker_file="$HOME/.sha1-hulud-null-find-v02.txt"
+        local marker_file="$HOME/.sha1-hulud-null-find-v03.txt"
         echo "SHA-1 Hulud Scan - No vulnerabilities found" > "$marker_file"
         echo "Scan Date: $(date)" >> "$marker_file"
         echo "Hostname: $(hostname)" >> "$marker_file"
@@ -122,7 +129,7 @@ handle_vulnerabilities() {
             echo "  - $file" | tee -a "$LOG_FILE"
         done
         
-        local marker_file="$HOME/.sha1-hulud-bun-find-v02.txt"
+        local marker_file="$HOME/.sha1-hulud-bun-find-v03.txt"
         {
             echo "SHA-1 Hulud Scan - BUN VULNERABILITIES DETECTED"
             echo "Scan Date: $(date)"
@@ -147,7 +154,7 @@ handle_vulnerabilities() {
             echo "  - $dir" | tee -a "$LOG_FILE"
         done
         
-        local marker_file="$HOME/.sha1-hulud-truffler-find-v02.txt"
+        local marker_file="$HOME/.sha1-hulud-truffler-find-v03.txt"
         {
             echo "SHA-1 Hulud Scan - TRUFFLER VULNERABILITIES DETECTED"
             echo "Scan Date: $(date)"
