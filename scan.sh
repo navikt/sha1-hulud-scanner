@@ -186,7 +186,7 @@ main() {
     scan_filesystem
     
     set +e
-    handle_vulnerabilities "${FOUND_FILES[@]}"
+    handle_vulnerabilities "${FOUND_FILES[@]+"${FOUND_FILES[@]}"}"
     local exit_code=$?
     set -e
     
